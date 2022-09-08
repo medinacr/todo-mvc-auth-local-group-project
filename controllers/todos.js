@@ -53,6 +53,15 @@ module.exports = {
         }
     },
     editTodo: async (req, res)=>{
-        console.log(req.body)
+        console.log(req.body.editedTextFromJSFile)
+        try{
+            await Todo.findOneAndUpdate({_id:req.body.todoIdFromJSFile},{
+                todo: req.body.editedTextFromJSFile
+            })
+            console.log('Edited Todo')
+            res.json('Edited Todo')
+        }catch(err){
+            console.log(err)
+        }
     }
 }    

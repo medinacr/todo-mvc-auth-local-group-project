@@ -23,8 +23,21 @@ async function editTodo(){
     const todoId = this.parentNode.dataset.id
     const editedText = prompt('Edit Todo')
     try{
-        const response = await fetch()
+        const response = await fetch('todos/editTodo', {
+            method: 'put',
+            headers: {'Content-type': 'application/json'},
+            body: JSON.stringify({
+                'todoIdFromJSFile': todoId,
+                'editedTextFromJSFile': editedText
+            })
+        })
+        const data = await response.json()
+        console.log(data)
+        location.reload()
+    }catch(err){
+        console.log(err)
     }
+
     console.log(todoId)
     console.log(editedText)
 }
