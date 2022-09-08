@@ -51,5 +51,8 @@ module.exports = {
         }catch(err){
             console.log(err)
         }
+    },
+    editTodo: async (req, res)=>{
+        console.log(req.body)
     }
 }    
