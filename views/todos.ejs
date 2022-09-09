@@ -5,29 +5,119 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dist.css">
+    <script src="/js/main.js"></script>
+    <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
-    <h1>Todos</h1>
-    <ul>
-    <% todos.forEach( el => { %>
-            <li class='todoItem' data-id='<%=el._id%>'>
-                <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.todo %></span>
-                <span class="edit"> Edit </span>
-                <span class='del'> Delete </span>     
-            </li>
-    <% }) %>    
-    </ul>
+    <div id="app">
+        {{year}}{{monthName[currentMonth]}}
+        <button class="px-4 py-2 bg-red-500 text-white" @click="previous">Previous</button>
+        <button class="px-4 py-2 bg-green-500 text-white" @click="next">Next</button>
+        <button class="px-4 py-2 bg-blue-500 text-white" @click="toggle">{{isWeekView}}</button>
+        <div >
+            <div class="flex justify-between items-center">
+                <div v-for="(weekDay, i) in weekNames" class="w-full text-center border-[1px] border-gray-600">
+                    <div class="">{{weekDay}}</div>
+                    <div v-if="datesWithZero[i] != 0">{{monthName[currentMonth]}}</div>
+                    <div v-if="currentMonth == 0 && datesWithZero[i] == 0">DEC</div>
+                    <div v-if="currentMonth != 0 && datesWithZero[i] == 0">{{monthName[currentMonth - 1]}}</div>
+                </div>
+            </div>
+            <div v-for="(weeks, i) in monthDates" class="flex ">
+                <div v-if="isWeekView && i==0" v-for="day in weeks" class="w-full text-center border-[1px] border-gray-600" @click="addTask(day)">
+                    {{day}}
+                </div>
+                <div v-else-if="!isWeekView" v-for="day in weeks" class="w-full text-center border-[1px] border-gray-600"  @click="addTask(day)">
+                    {{day}}
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <h2><%= user.userName %> has <%= left %> things left to do.</h2>
+    <script>
+        const { createApp } = Vue
+      
+        createApp({
+          data() {
+            return {
+              message: 'Hello Vue!',
+              weekNames: ['SUN', 'MON', 'TUES', 'WED', 'THUR', 'FRI', 'SAT',],
+              monthName: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+              //MonthDates = [ "26", "27", "28", "29", "30", "31", " 1" ]
+              monthDates: [],
+              //MonthDays = [0,0,0,1,2,3]
+              datesWithZero: [],
+              year: 2022, 
+              currentMonth: 0,
+              weekday: 0,
+              isWeekView: true
+            }
+          },
+          watch: {
+            currentMonth(){
+                this.buildCalendar();
+            }
+          },
+          mounted() {
+           this.buildCalendar();
+          },
+          methods: {
+            next(event) {
+                if(this.currentMonth == 11){
+                    this.year = this.year + 1;
+                    this.currentMonth = 0;
+                }else{
+                    this.currentMonth = this.currentMonth + 1;
+                }
+            },
+            previous(event) {
+                if(this.currentMonth == 0){
+                    this.year = this.year - 1;
+                    this.currentMonth = 11;
+                }else{
+                    this.currentMonth = this.currentMonth - 1;
+                }
+                
+            },
+            toggle(){
+                this.isWeekView = !this.isWeekView;
+            },
+            addTask(date, month){
+                console.log(date, month)
+            },
+            buildCalendar(){
+                //https://www.npmjs.com/package/calendar
+                var cal = new Calendar();
+                var m = cal.monthDates(this.year, this.currentMonth,function(d) {return (' '+d.getDate()).slice(-2)});
+                this.monthDates = m;
 
-    <form action="/todos/createTodo" method='POST'>
-        <input type="text" placeholder="Enter Todo Item" name='todoItem'>
-        <input type="submit">
-    </form>
-
-    <a href="/logout">Logout</a>
-
-    <script src="js/main.js"></script>
+                var m = cal.monthDays(this.year, this.currentMonth);
+                this.datesWithZero = m[this.weekday];
+            }
+          }
+        }).mount('#app')
+      </script>
 </body>
 </html>
+
+
+<!-- <h1 class="text-5xl text-red-500 ">Todos</h1>
+<ul>
+<% todos.forEach( el => { %>
+        <li class='todoItem' data-id='<%=el._id%>'>
+            <span class='<%= el.completed === true ? 'completed' : 'not'%>'><%= el.todo %></span>
+            <span class="edit"> Edit </span>
+            <span class='del'> Delete </span>     
+        </li>
+<% }) %>    
+</ul>
+
+<h2><%= user.userName %> has <%= left %> things left to do.</h2>
+
+<form action="/todos/createTodo" method='POST'>
+    <input type="text" placeholder="Enter Todo Item" name='todoItem'>
+    <input type="submit">
+</form>
+
+<a href="/logout">Logout</a> -->
